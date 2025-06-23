@@ -2,13 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Task;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class TaskController extends Controller
 {
-    // Tampilkan semua task dengan relasi penting
+    //  Method untuk tampilan Inertia TaskBoard
+    public function taskBoard()
+    {
+        $user = Auth::user();
+
+        $tasks = Task::with(['assignee'])
+            ->where('branch_id', $user->branch_id)
+            ->get()
+            ->groupBy('category'); 
+
+        return Inertia::render('Tasks/Index', [
+            'tasksByCategory' => $tasks,
+        ]);
+    }
+
+    //  API: Ambil semua task (versi JSON)
     public function index()
     {
         return Task::with([
@@ -17,36 +33,37 @@ class TaskController extends Controller
             'fromBranch',
             'assignee',
             'creator',
-            'checklistItems'
+            'checklistItems',
+            'category'       
         ])->latest()->get();
     }
 
-    // Buat task baru
+    //  Buat task baru
     public function store(Request $request)
     {
         $request->validate([
-            'title'         => 'required|string',
-            'description'   => 'nullable|string',
-            'project_id'    => 'required|exists:projects,id',
-            'assigned_to'   => 'required|exists:users,id',
-            'branch_id'     => 'required|exists:branches,id',
-            'from_branch_id'=> 'nullable|exists:branches,id',
-            'due_date'      => 'nullable|date'
+            'title'           => 'required|string',
+            'description'     => 'nullable|string',
+            'project_id'      => 'required|exists:projects,id',
+            'assigned_to'     => 'required|exists:users,id',
+            'branch_id'       => 'required|exists:branches,id',
+            'from_branch_id'  => 'nullable|exists:branches,id',
+            'due_date'        => 'nullable|date',
+            'category'        => 'nullable|string',
         ]);
 
         $task = Task::create([
-            'title'         => $request->title,
-            'description'   => $request->description,
-            'status'        => 'pending',
-            'project_id'    => $request->project_id,
-            'assigned_to'   => $request->assigned_to,
-            'created_by'    => auth()->id(),
-            'branch_id'     => $request->branch_id,
-            'from_branch_id'=> $request->from_branch_id,
-            'due_date'      => $request->due_date,
+            'title'           => $request->title,
+            'description'     => $request->description,
+            'status'          => 'pending',
+            'project_id'      => $request->project_id,
+            'assigned_to'     => $request->assigned_to,
+            'created_by'      => auth()->id(),
+            'branch_id'       => $request->branch_id,
+            'from_branch_id'  => $request->from_branch_id,
+            'due_date'        => $request->due_date,
+            'category' => $request->category,
         ]);
-
-        // TODO: Tambah WhatsApp notifikasi jika dibutuhkan
 
         return response()->json([
             'message' => 'Task created successfully.',
@@ -54,7 +71,7 @@ class TaskController extends Controller
         ], 201);
     }
 
-    // Detail satu task (dengan checklist)
+    // Detail satu task (JSON)
     public function show($id)
     {
         $task = Task::with([
@@ -69,20 +86,21 @@ class TaskController extends Controller
         return response()->json($task);
     }
 
-    // Update task
+    // Update task (JSON)
     public function update(Request $request, $id)
     {
         $task = Task::findOrFail($id);
 
         $request->validate([
-            'title'         => 'sometimes|required|string',
-            'description'   => 'nullable|string',
-            'status'        => 'nullable|string',
-            'project_id'    => 'nullable|exists:projects,id',
-            'assigned_to'   => 'nullable|exists:users,id',
-            'branch_id'     => 'nullable|exists:branches,id',
-            'from_branch_id'=> 'nullable|exists:branches,id',
-            'due_date'      => 'nullable|date'
+            'title'           => 'sometimes|required|string',
+            'description'     => 'nullable|string',
+            'status'          => 'nullable|string',
+            'project_id'      => 'nullable|exists:projects,id',
+            'assigned_to'     => 'nullable|exists:users,id',
+            'branch_id'       => 'nullable|exists:branches,id',
+            'from_branch_id'  => 'nullable|exists:branches,id',
+            'due_date'        => 'nullable|date',
+            'category'        => 'nullable|string',
         ]);
 
         $task->update($request->all());
@@ -93,7 +111,7 @@ class TaskController extends Controller
         ]);
     }
 
-    // Hapus task
+    //  Hapus task
     public function destroy($id)
     {
         $task = Task::findOrFail($id);
@@ -102,7 +120,7 @@ class TaskController extends Controller
         return response()->json(['message' => 'Task deleted']);
     }
 
-    // Dispatch task ke branch lain
+    //  Dispatch task ke branch lain
     public function dispatch(Request $request, $id)
     {
         $task = Task::findOrFail($id);
@@ -118,7 +136,7 @@ class TaskController extends Controller
 
         return response()->json([
             'message' => 'Task dispatched successfully.',
-            'task' => $task
+            'task'    => $task
         ]);
     }
 }

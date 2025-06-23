@@ -3,9 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AdminTaskController;
-use App\Http\Controllers\UserTaskController;
-use App\Http\Controllers\MonitorController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TaskController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -21,10 +20,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    //role
-    Route::get('/admin/tasks', [AdminTaskController::class, 'index'])->name('admin.tasks');
-    Route::get('/user/tasks', [UserTaskController::class, 'index'])->name('user.tasks');
-    Route::get('/monitor/view', [MonitorController::class, 'index'])->name('monitor.view');
+    //task
+    Route::get('/tasks', [TaskController::class, 'taskBoard'])->name('tasks.board');
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 require __DIR__.'/auth.php';
