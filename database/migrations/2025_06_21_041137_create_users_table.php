@@ -17,18 +17,19 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            
-            // custom fields
-            $table->foreignId('branch_id')->nullable()
-                  ->constrained('branches')->onDelete('set null');
-            $table->enum('role', ['superadmin','admin','monitor','user'])
-                  ->default('user');
+
+            // custom fields (branch_id dihapus)
+            $table->enum('role', ['superadmin', 'admin', 'monitor', 'user'])->default('user');
             $table->string('phone_number')->nullable();
-            
+
             $table->rememberToken();
             $table->timestamps();
         });
     }
+
+    /**
+     * Reverse the migrations.
+     */
     public function down()
     {
         Schema::dropIfExists('users');

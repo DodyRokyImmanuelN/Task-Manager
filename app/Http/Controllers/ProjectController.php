@@ -4,41 +4,55 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Project;
-use App\Models\Branch;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ProjectController extends Controller
 {
     public function index()
     {
-        return Project::with('branch')->get();
+        return Project::all(); // Tidak perlu 'with(branch)' lagi
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'branch_id' => 'required|exists:branches,id'
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
         ]);
 
-        return Project::create($request->only('name', 'branch_id'));
+        Project::create([
+            'name' => $validated['name'],
+            'color' => fake()->hexColor(),
+        ]);
+
+        return redirect()->back()->with('success', 'Project created');
     }
 
     public function show($id)
     {
-        return Project::with('branch')->findOrFail($id);
+        return Project::findOrFail($id); // Tidak perlu relasi branch
     }
 
     public function update(Request $request, $id)
     {
         $project = Project::findOrFail($id);
-        $project->update($request->only('name', 'branch_id'));
-        return $project;
+
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'color' => 'nullable|string',
+        ]);
+
+        $project->update($validated);
+
+        return response()->json([
+            'message' => 'Project updated',
+            'data' => $project
+        ]);
     }
 
     public function destroy($id)
     {
-        Project::destroy($id);
+        $project = Project::findOrFail($id);
+        $project->delete();
+
         return response()->json(['message' => 'Project deleted']);
     }
 }

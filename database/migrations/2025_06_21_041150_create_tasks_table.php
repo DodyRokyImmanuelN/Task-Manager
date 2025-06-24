@@ -25,10 +25,6 @@ return new class extends Migration
             $table->foreignId('created_by')->nullable()
                   ->constrained('users')->onDelete('set null');
             
-            $table->foreignId('from_branch_id')->nullable()
-                  ->constrained('branches')->onDelete('set null');
-            $table->foreignId('branch_id')
-                  ->constrained('branches')->onDelete('cascade');
             
             $table->date('due_date')->nullable();
             

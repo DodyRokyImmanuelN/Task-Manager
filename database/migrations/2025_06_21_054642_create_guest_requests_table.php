@@ -15,7 +15,6 @@ return new class extends Migration
         $table->id();
         $table->string('title');
         $table->text('description')->nullable();
-        $table->foreignId('branch_id')->constrained()->onDelete('cascade');
         $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
         $table->string('guest_name');
         $table->string('guest_phone')->nullable();

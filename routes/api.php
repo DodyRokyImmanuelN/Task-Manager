@@ -49,8 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/checklist/{id}',[ChecklistItemController::class, 'toggle']);
     Route::delete('/checklist/{id}',[ChecklistItemController::class, 'destroy']);
 
-    // === BRANCH & PROJECT === //
-    Route::apiResource('branches',BranchController::class);
+    // === PROJECT === //
     Route::apiResource('projects',ProjectController::class);
 
     // === USER (opsional: batasi hanya superadmin) === //

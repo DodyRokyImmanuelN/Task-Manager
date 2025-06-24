@@ -8,13 +8,10 @@ class Project extends Model
 {
     protected $fillable = [
         'name',
-        'branch_id',
+        'name', 
+        'color'
     ];
 
-    public function branch()
-{
-    return $this->belongsTo(Branch::class);
-}
 
 public function tasks()
 {

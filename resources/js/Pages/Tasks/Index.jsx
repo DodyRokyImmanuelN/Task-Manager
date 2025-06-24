@@ -28,7 +28,7 @@ export default function TaskBoard() {
     const handleAddList = () => {
         if (!newListTitle.trim()) return;
 
-        // Tambah list kosong (tidak langsung ke backend karena list = category)
+        // Tambah list kosong
         tasksByCategory[newListTitle] = [];
         setNewListTitle("");
     };

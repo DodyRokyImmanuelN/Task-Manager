@@ -9,60 +9,59 @@ use Inertia\Inertia;
 
 class TaskController extends Controller
 {
-    //  Method untuk tampilan Inertia TaskBoard
+    /**
+     * Tampilan task board berbasis Inertia
+     */
     public function taskBoard()
     {
         $user = Auth::user();
 
         $tasks = Task::with(['assignee'])
-            ->where('branch_id', $user->branch_id)
+            ->where('assigned_to', $user->id) // Menampilkan task milik user
             ->get()
-            ->groupBy('category'); 
+            ->groupBy('category');
 
         return Inertia::render('Tasks/Index', [
             'tasksByCategory' => $tasks,
         ]);
     }
 
-    //  API: Ambil semua task (versi JSON)
+    /**
+     * Ambil semua task dalam format JSON
+     */
     public function index()
     {
         return Task::with([
             'project',
-            'branch',
-            'fromBranch',
             'assignee',
             'creator',
-            'checklistItems',
-            'category'       
+            'checklistItems'
         ])->latest()->get();
     }
 
-    //  Buat task baru
+    /**
+     * Simpan task baru
+     */
     public function store(Request $request)
     {
         $request->validate([
-            'title'           => 'required|string',
-            'description'     => 'nullable|string',
-            'project_id'      => 'required|exists:projects,id',
-            'assigned_to'     => 'required|exists:users,id',
-            'branch_id'       => 'required|exists:branches,id',
-            'from_branch_id'  => 'nullable|exists:branches,id',
-            'due_date'        => 'nullable|date',
-            'category'        => 'nullable|string',
+            'title'        => 'required|string',
+            'description'  => 'nullable|string',
+            'project_id'   => 'required|exists:projects,id',
+            'assigned_to'  => 'required|exists:users,id',
+            'due_date'     => 'nullable|date',
+            'category'     => 'nullable|string',
         ]);
 
         $task = Task::create([
-            'title'           => $request->title,
-            'description'     => $request->description,
-            'status'          => 'pending',
-            'project_id'      => $request->project_id,
-            'assigned_to'     => $request->assigned_to,
-            'created_by'      => auth()->id(),
-            'branch_id'       => $request->branch_id,
-            'from_branch_id'  => $request->from_branch_id,
-            'due_date'        => $request->due_date,
-            'category' => $request->category,
+            'title'        => $request->title,
+            'description'  => $request->description,
+            'status'       => 'pending',
+            'project_id'   => $request->project_id,
+            'assigned_to'  => $request->assigned_to,
+            'created_by'   => auth()->id(),
+            'due_date'     => $request->due_date,
+            'category'     => $request->category,
         ]);
 
         return response()->json([
@@ -71,13 +70,13 @@ class TaskController extends Controller
         ], 201);
     }
 
-    // Detail satu task (JSON)
+    /**
+     * Tampilkan detail 1 task
+     */
     public function show($id)
     {
         $task = Task::with([
             'project',
-            'branch',
-            'fromBranch',
             'assignee',
             'creator',
             'checklistItems'
@@ -86,21 +85,21 @@ class TaskController extends Controller
         return response()->json($task);
     }
 
-    // Update task (JSON)
+    /**
+     * Update task
+     */
     public function update(Request $request, $id)
     {
         $task = Task::findOrFail($id);
 
         $request->validate([
-            'title'           => 'sometimes|required|string',
-            'description'     => 'nullable|string',
-            'status'          => 'nullable|string',
-            'project_id'      => 'nullable|exists:projects,id',
-            'assigned_to'     => 'nullable|exists:users,id',
-            'branch_id'       => 'nullable|exists:branches,id',
-            'from_branch_id'  => 'nullable|exists:branches,id',
-            'due_date'        => 'nullable|date',
-            'category'        => 'nullable|string',
+            'title'        => 'sometimes|required|string',
+            'description'  => 'nullable|string',
+            'status'       => 'nullable|string',
+            'project_id'   => 'nullable|exists:projects,id',
+            'assigned_to'  => 'nullable|exists:users,id',
+            'due_date'     => 'nullable|date',
+            'category'     => 'nullable|string',
         ]);
 
         $task->update($request->all());
@@ -110,33 +109,26 @@ class TaskController extends Controller
             'task'    => $task
         ]);
     }
+    public function byProject($id)
+{
+    $tasks = Task::with('assignee')
+        ->where('project_id', $id)
+        ->get()
+        ->groupBy('category');
 
-    //  Hapus task
+    return Inertia::render('Tasks/Index', [
+        'tasksByCategory' => $tasks,
+    ]);
+}
+
+    /**
+     * Hapus task
+     */
     public function destroy($id)
     {
         $task = Task::findOrFail($id);
         $task->delete();
 
         return response()->json(['message' => 'Task deleted']);
-    }
-
-    //  Dispatch task ke branch lain
-    public function dispatch(Request $request, $id)
-    {
-        $task = Task::findOrFail($id);
-
-        $request->validate([
-            'target_branch_id' => 'required|exists:branches,id',
-        ]);
-
-        $task->from_branch_id = $task->branch_id;
-        $task->branch_id = $request->target_branch_id;
-        $task->dispatched_at = now();
-        $task->save();
-
-        return response()->json([
-            'message' => 'Task dispatched successfully.',
-            'task'    => $task
-        ]);
     }
 }
