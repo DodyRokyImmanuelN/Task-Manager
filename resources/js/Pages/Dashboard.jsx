@@ -21,46 +21,48 @@ export default function Dashboard({
     return (
         <AuthenticatedLayout auth={auth}>
             <Head title="Dashboard" />
-            <div className="flex items-center justify-between mb-4  pb-2">
-                <h1 className="text-3xl font-semibold text-gray-900">
-                    Dashboard
-                </h1>
-            </div>
+            <div className="px-6 py-4">
+                <div className="flex items-center justify-between mb-4 pb-2">
+                    <h1 className="text-3xl font-semibold text-gray-900">
+                        Dashboard
+                    </h1>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <StatCard
-                    title="Open Tasks"
-                    value={openTasks}
-                    color="bg-purple-100 text-purple-700"
-                    icon={<IconTasks />}
-                />
-                <StatCard
-                    title="Completed Tasks"
-                    value={completedTasks}
-                    color="bg-green-100 text-green-700"
-                    icon={<IconCompleted />}
-                />
-                <StatCard
-                    title="Total Projects"
-                    value={totalProjects}
-                    color="bg-yellow-100 text-yellow-700"
-                    icon={<IconCalendar />}
-                />
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <StatCard
+                        title="Open Tasks"
+                        value={openTasks}
+                        color="bg-purple-100 text-purple-700"
+                        icon={<IconTasks />}
+                    />
+                    <StatCard
+                        title="Completed Tasks"
+                        value={completedTasks}
+                        color="bg-green-100 text-green-700"
+                        icon={<IconCompleted />}
+                    />
+                    <StatCard
+                        title="Total Projects"
+                        value={totalProjects}
+                        color="bg-yellow-100 text-yellow-700"
+                        icon={<IconCalendar />}
+                    />
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ChartCard
-                    title="Completed in the last 7 days"
-                    data={weeklyData}
-                    dataKey="tasks"
-                    xKey="day"
-                />
-                <ChartCard
-                    title="Most productive month"
-                    data={monthlyData}
-                    dataKey="tasks"
-                    xKey="month"
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <ChartCard
+                        title="Completed in the last 7 days"
+                        data={weeklyData}
+                        dataKey="tasks"
+                        xKey="day"
+                    />
+                    <ChartCard
+                        title="Most productive month"
+                        data={monthlyData}
+                        dataKey="tasks"
+                        xKey="month"
+                    />
+                </div>
             </div>
         </AuthenticatedLayout>
     );

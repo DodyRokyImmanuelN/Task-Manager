@@ -13,8 +13,7 @@ class TaskController extends Controller
      * Tampilan task board berbasis Inertia
      */
     // app/Http/Controllers/TaskController.php
-public function taskBoard($id)
-{
+public function taskBoardByProject($id){
     $user = Auth::user();
 
     $tasks = Task::with(['assignee'])
@@ -25,6 +24,20 @@ public function taskBoard($id)
     return Inertia::render('Tasks/Index', [
         'tasksByCategory' => $tasks,
         'projectId' => (int) $id,
+    ]);
+}
+public function taskBoard()
+{
+    $user = Auth::user();
+
+    $tasks = Task::with(['assignee'])
+        ->where('assigned_to', $user->id)
+        ->get()
+        ->groupBy('category');
+
+    return Inertia::render('Tasks/Index', [
+        'tasksByCategory' => $tasks,
+        'projectId' => null, 
     ]);
 }
 
@@ -120,6 +133,16 @@ public function taskBoard($id)
 
     return Inertia::render('Tasks/Index', [
         'tasksByCategory' => $tasks,
+    ]);
+}
+public function myTasks()
+{
+    $user = Auth::user();
+
+    $tasks = Task::where('assigned_to', $user->id)->get();
+
+    return Inertia::render('MyTasks', [
+        'tasks' => $tasks,
     ]);
 }
 

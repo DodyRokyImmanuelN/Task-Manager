@@ -39,7 +39,7 @@ export default function AuthenticatedLayout({ children }) {
                         Home
                     </Link>
                     <Link
-                        href="/tasks"
+                        href="/my-tasks"
                         className="block p-2 rounded hover:bg-gray-800"
                     >
                         My Tasks
@@ -109,7 +109,6 @@ export default function AuthenticatedLayout({ children }) {
                     )}
                 </nav>
             </aside>
-
             {/* Create Project Modal */}
             {modalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

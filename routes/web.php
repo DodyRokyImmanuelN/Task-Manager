@@ -25,6 +25,12 @@ Route::middleware('auth')->group(function () {
     //task
     Route::get('/tasks', [TaskController::class, 'taskBoard'])->name('tasks.board');
     Route::post('/task-lists', [TaskListController::class, 'store']);
+    Route::delete('/task-lists/{id}',[TaskListController::class, 'destroy']);
+    Route::get('/tasks/project/{id}', [TaskController::class, 'taskBoardByProject'])->name('tasks.byProject');
+
+    Route::get('/my-tasks', function () {
+        return redirect()->route('tasks.board');
+    });
     //project
     Route::post('/projects', [ProjectController::class, 'store']);
     Route::get('/projects/{id}', [ProjectController::class, 'show']);

@@ -47,4 +47,7 @@ public function checklistItems()
 { 
     return $this->hasMany(ChecklistItem::class); 
 }
+public function assignee_too() {
+    return $this->belongsTo(User::class, 'assigned_to');
+}
 }

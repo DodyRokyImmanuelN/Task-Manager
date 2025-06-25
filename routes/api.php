@@ -9,6 +9,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\GuestRequestController;
+use App\Http\Controllers\TaskListController;
 
 // === AUTH === //
 Route::post('/register',[AuthController::class, 'register']);
@@ -32,7 +33,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin,superadmin')->group(function () {
         Route::post('/tasks',[TaskController::class, 'store']);
         Route::put('/tasks/{id}',[TaskController::class, 'update']);
-        Route::delete('/tasks/{id}',[TaskController::class, 'destroy']);
+        Route::delete('/tasks/{id}',[TaskListController::class, 'destroy']);
+
 
         // Task dispatch
         // Hanya admin dan superadmin yang boleh dispatch task

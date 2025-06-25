@@ -144,7 +144,6 @@ function TaskModal({
         </div>
     );
 }
-
 function InfoItem({ label, value }) {
     return (
         <div>
@@ -153,7 +152,6 @@ function InfoItem({ label, value }) {
         </div>
     );
 }
-
 function TaskCard({ task }) {
     return (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 text-sm hover:shadow-md transition">
@@ -177,6 +175,8 @@ export default function TaskBoard() {
     const [modalTitle, setModalTitle] = useState("");
     const [modalDesc, setModalDesc] = useState("");
     const [checklists, setChecklists] = useState([]);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [listToDelete, setListToDelete] = useState(null);
 
     const [newListTitle, setNewListTitle] = useState("");
 
@@ -203,6 +203,28 @@ export default function TaskBoard() {
             }
         );
     };
+    const handleDeleteList = (list) => {
+        if (!list) return;
+
+        router.delete(`/task-lists/${list.id}`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                console.log(`List "${list.name}" deleted.`);
+            },
+        });
+    };
+
+    const confirmDeleteList = () => {
+        if (!listToDelete) return;
+
+        router.delete(`/task-lists/${listToDelete.id}`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setShowDeleteModal(false);
+                setListToDelete(null);
+            },
+        });
+    };
 
     const handleAddList = () => {
         if (!newListTitle.trim()) return;
@@ -219,7 +241,6 @@ export default function TaskBoard() {
             }
         );
     };
-
     return (
         <AuthenticatedLayout>
             <Head title="Project Tasks" />
@@ -240,10 +261,29 @@ export default function TaskBoard() {
                             key={list.id}
                             className="w-64 flex-shrink-0 bg-gray-50 border border-gray-200 rounded-xl p-4"
                         >
-                            <div className="flex justify-between items-center mb-3">
+                            <div className="flex justify-between items-center mb-3 relative">
                                 <h2 className="text-sm font-semibold text-gray-700">
                                     {list.name}
                                 </h2>
+
+                                {/* Tombol delete (hover = X, klik = hapus) */}
+                                <div className="relative group">
+                                    <button
+                                        onClick={() => {
+                                            setListToDelete(list); // ← ini penting!
+                                            setShowDeleteModal(true);
+                                        }}
+                                        className="text-gray-400 hover:text-red-600 transition duration-150"
+                                        title="Delete list"
+                                    >
+                                        <span className="group-hover:hidden">
+                                            ⋮
+                                        </span>
+                                        <span className="hidden group-hover:inline-block">
+                                            ✕
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="space-y-3 mb-3">
@@ -303,6 +343,39 @@ export default function TaskBoard() {
                 project={project}
                 list={taskLists.find((list) => list.id === currentListId)}
             />
+            {showDeleteModal && (
+                <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
+                        <h2 className="text-lg font-semibold mb-2 text-gray-900">
+                            Hapus Daftar?
+                        </h2>
+                        <p className="text-sm text-gray-600">
+                            Yakin ingin menghapus list{" "}
+                            <span className="font-semibold text-red-600">
+                                {listToDelete?.name}
+                            </span>
+                            ? Tindakan ini tidak dapat dibatalkan.
+                        </p>
+                        <div className="mt-6 flex justify-end space-x-2">
+                            <button
+                                onClick={() => {
+                                    setShowDeleteModal(false);
+                                    setListToDelete(null);
+                                }}
+                                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-sm"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                onClick={confirmDeleteList}
+                                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+                            >
+                                Hapus
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </AuthenticatedLayout>
     );
 }
