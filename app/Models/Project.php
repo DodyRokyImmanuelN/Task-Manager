@@ -17,5 +17,10 @@ public function tasks()
 {
     return $this->hasMany(Task::class);
 }
+public function taskLists()
+{
+    return $this->hasMany(TaskList::class);
+}
+
 
 }

@@ -12,19 +12,22 @@ class TaskController extends Controller
     /**
      * Tampilan task board berbasis Inertia
      */
-    public function taskBoard()
-    {
-        $user = Auth::user();
+    // app/Http/Controllers/TaskController.php
+public function taskBoard($id)
+{
+    $user = Auth::user();
 
-        $tasks = Task::with(['assignee'])
-            ->where('assigned_to', $user->id) // Menampilkan task milik user
-            ->get()
-            ->groupBy('category');
+    $tasks = Task::with(['assignee'])
+        ->where('project_id', $id)
+        ->get()
+        ->groupBy('category');
 
-        return Inertia::render('Tasks/Index', [
-            'tasksByCategory' => $tasks,
-        ]);
-    }
+    return Inertia::render('Tasks/Index', [
+        'tasksByCategory' => $tasks,
+        'projectId' => (int) $id,
+    ]);
+}
+
 
     /**
      * Ambil semua task dalam format JSON
@@ -43,33 +46,32 @@ class TaskController extends Controller
      * Simpan task baru
      */
     public function store(Request $request)
-    {
-        $request->validate([
-            'title'        => 'required|string',
-            'description'  => 'nullable|string',
-            'project_id'   => 'required|exists:projects,id',
-            'assigned_to'  => 'required|exists:users,id',
-            'due_date'     => 'nullable|date',
-            'category'     => 'nullable|string',
-        ]);
+{
+    $request->validate([
+        'title'       => 'required|string',
+        'description' => 'nullable|string',
+        'project_id'  => 'required|exists:projects,id',
+        'assigned_to' => 'required|exists:users,id',
+        'due_date'    => 'nullable|date',
+        'category'    => 'nullable|string',
+    ]);
 
-        $task = Task::create([
-            'title'        => $request->title,
-            'description'  => $request->description,
-            'status'       => 'pending',
-            'project_id'   => $request->project_id,
-            'assigned_to'  => $request->assigned_to,
-            'created_by'   => auth()->id(),
-            'due_date'     => $request->due_date,
-            'category'     => $request->category,
-        ]);
+    $task = Task::create([
+        'title'       => $request->title,
+        'description' => $request->description,
+        'status'      => 'pending',
+        'project_id'  => $request->project_id,
+        'assigned_to' => $request->assigned_to,
+        'created_by'  => auth()->id(),
+        'due_date'    => $request->due_date,
+        'category'    => $request->category,
+    ]);
 
-        return response()->json([
-            'message' => 'Task created successfully.',
-            'task'    => $task
-        ], 201);
-    }
-
+    return response()->json([
+        'message' => 'Task created successfully.',
+        'task'    => $task,
+    ], 201);
+}
     /**
      * Tampilkan detail 1 task
      */

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TaskListController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -23,9 +24,10 @@ Route::middleware('auth')->group(function () {
 
     //task
     Route::get('/tasks', [TaskController::class, 'taskBoard'])->name('tasks.board');
+    Route::post('/task-lists', [TaskListController::class, 'store']);
     //project
     Route::post('/projects', [ProjectController::class, 'store']);
-    Route::get('/projects/{id}', [TaskController::class, 'byProject']);
+    Route::get('/projects/{id}', [ProjectController::class, 'show']);
 
 });
 

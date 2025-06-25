@@ -3,36 +3,42 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChecklistItem;
-use App\Models\Task;
 use Illuminate\Http\Request;
 
 class ChecklistItemController extends Controller
 {
-    public function store(Request $request, $taskId)
-    {
-        $task = Task::findOrFail($taskId);
+    public function store(Request $request)
+{
+    $validated = $request->validate([
+        'task_id' => 'required|exists:tasks,id',
+        'item' => 'required|string',
+    ]);
 
-        $item = $task->checklistItems()->create([
-            'content' => $request->content,
+    $item = ChecklistItem::create($validated);
+
+    return response()->json($item); // <--- INI WAJIB
+}
+
+    public function index($taskId)
+{
+    return response()->json(
+        \App\Models\ChecklistItem::where('task_id', $taskId)->get()
+    );
+}
+
+    public function update(Request $request, ChecklistItem $checklistItem)
+    {
+        $checklistItem->update([
+            'is_checked' => $request->boolean('is_checked'),
         ]);
 
-        return response()->json($item, 201);
+        return response()->json($checklistItem);
     }
 
-    public function toggle($id)
+    public function destroy(ChecklistItem $checklistItem)
     {
-        $item = ChecklistItem::findOrFail($id);
-        $item->is_completed = !$item->is_completed;
-        $item->save();
+        $checklistItem->delete();
 
-        return response()->json($item);
-    }
-
-    public function destroy($id)
-    {
-        $item = ChecklistItem::findOrFail($id);
-        $item->delete();
-
-        return response()->json(['message' => 'Checklist item deleted']);
+        return response()->json(['success' => true]);
     }
 }

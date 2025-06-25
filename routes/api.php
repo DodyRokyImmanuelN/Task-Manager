@@ -45,9 +45,12 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // === CHECKLIST === //
-    Route::post('/tasks/{task}/checklist',[ChecklistItemController::class, 'store']);
-    Route::patch('/checklist/{id}',[ChecklistItemController::class, 'toggle']);
-    Route::delete('/checklist/{id}',[ChecklistItemController::class, 'destroy']);
+    Route::post('/checklists', [ChecklistItemController::class, 'store'])->name('checklists.store');
+    Route::patch('/checklists/{checklistItem}', [ChecklistItemController::class, 'update'])->name('checklists.update');
+    Route::delete('/checklists/{checklistItem}', [ChecklistItemController::class, 'destroy'])->name('checklists.destroy');
+    Route::get('/tasks/{id}/checklists', [ChecklistItemController::class, 'index']);
+
+
 
     // === PROJECT === //
     Route::apiResource('projects',ProjectController::class);

@@ -12,13 +12,13 @@ return new class extends Migration
     public function up()
     {
         Schema::create('checklist_items', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('task_id')
-                  ->constrained()->onDelete('cascade');
-            $table->string('content');
-            $table->boolean('is_completed')->default(false);
+            $table->id(); 
+            $table->foreignId('task_id')->constrained()->onDelete('cascade');
+            $table->string('item');
+            $table->boolean('is_checked')->default(false);
             $table->timestamps();
-        });
+});
+
     }
     public function down()
     {

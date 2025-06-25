@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Project;
+use App\Models\Task;
+use Inertia\Inertia;
 
 class ProjectController extends Controller
 {
@@ -27,9 +29,18 @@ class ProjectController extends Controller
     }
 
     public function show($id)
-    {
-        return Project::findOrFail($id); // Tidak perlu relasi branch
-    }
+{
+    $project = Project::findOrFail($id);
+
+    $taskLists = $project->taskLists()->with('tasks.assignee')->get();
+
+    return Inertia::render('Tasks/Index', [
+        'project'    => $project,
+        'projectId'  => $project->id,
+        'taskLists'  => $taskLists,
+    ]);
+}
+
 
     public function update(Request $request, $id)
     {
